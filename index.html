@@ -10,7 +10,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 
-
 <style>
 *{box-sizing:border-box;font-family:Poppins}
 body{
@@ -62,6 +61,17 @@ video,canvas{
   border:3px solid #4facfe
 }
 .status{text-align:center;margin-top:15px;color:#00f2fe;font-weight:600}
+.notice{
+  text-align:center;
+  margin-bottom:15px;
+  animation:pulse 2s infinite;
+  color:#ffd86b;
+}
+@keyframes pulse{
+  0%{opacity:.5}
+  50%{opacity:1}
+  100%{opacity:.5}
+}
 </style>
 </head>
 
@@ -76,9 +86,9 @@ video,canvas{
   </div>
 
   <div class="notice">
-  ⚠️ Mohon maaf, website ini sedang dalam tahap pengembangan dan<br>
-  perbaikan banyak bug. Mohon pengertiannya.
-</div>
+    ⚠️ Mohon maaf, website ini sedang dalam tahap pengembangan dan<br>
+    perbaikan banyak bug. Mohon pengertiannya.
+  </div>
 
   <div id="guide" class="content active">
     <ul>
@@ -103,25 +113,36 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const statusText = document.getElementById("status");
 
-let lastSpeak = 0;
 const HOLD = 8;
 let holdCount = 0;
 let lastGesture = "";
+
+/* =========================
+   SUARA SENDIRI (GANTI SAJA INI)
+========================= */
+const audioHalo = new Audio("halo.mp3");
+const audioBantuan = new Audio("saya butuh bantuan.mp3");
+const audioTerima = new Audio("terima kasih.mp3");
+
+function playAudio(type){
+  audioHalo.pause();
+  audioBantuan.pause();
+  audioTerima.pause();
+
+  audioHalo.currentTime = 0;
+  audioBantuan.currentTime = 0;
+  audioTerima.currentTime = 0;
+
+  if(type==="HALO") audioHalo.play();
+  if(type==="BANTUAN") audioBantuan.play();
+  if(type==="TERIMA") audioTerima.play();
+}
+/* ========================= */
 
 function showPage(id){
   document.querySelectorAll(".content").forEach(c=>c.classList.remove("active"));
   document.getElementById(id).classList.add("active");
   if(id==="scan") startCamera();
-}
-
-function speak(text){
-  const now = Date.now();
-  if(now-lastSpeak<4000) return;
-  const msg = new SpeechSynthesisUtterance(text);
-  msg.lang="id-ID";
-  speechSynthesis.cancel();
-  speechSynthesis.speak(msg);
-  lastSpeak = now;
 }
 
 const hands = new Hands({
@@ -149,13 +170,12 @@ hands.onResults(res=>{
   const fingerUp = (tip,pip)=> lm[tip].y < lm[pip].y;
   const thumbUp = hand==="Right" ? lm[4].x < lm[3].x : lm[4].x > lm[3].x;
 
-  const indexUp  = fingerUp(8,6);
-  const middleUp = fingerUp(12,10);
-  const ringUp   = fingerUp(16,14);
-  const pinkyUp  = fingerUp(20,18);
-
   const totalUp =
-    (thumbUp?1:0)+(indexUp?1:0)+(middleUp?1:0)+(ringUp?1:0)+(pinkyUp?1:0);
+    (thumbUp?1:0) +
+    (fingerUp(8,6)?1:0) +
+    (fingerUp(12,10)?1:0) +
+    (fingerUp(16,14)?1:0) +
+    (fingerUp(20,18)?1:0);
 
   let gesture="";
   if(totalUp===5) gesture="OPEN";
@@ -171,15 +191,15 @@ hands.onResults(res=>{
 
   if(holdCount===HOLD){
     if(gesture==="OPEN"){
-      speak("Halo");
+      playAudio("HALO");
       statusText.innerText="✋ Halo";
     }
     if(gesture==="FIST"){
-      speak("Saya butuh bantuan");
+      playAudio("BANTUAN");
       statusText.innerText="✊ Saya butuh bantuan";
     }
     if(gesture==="THUMB"){
-      speak("Terima kasih");
+      playAudio("TERIMA");
       statusText.innerText="👍 Terima kasih";
     }
   }
@@ -190,7 +210,8 @@ function startCamera(){
     video.srcObject=stream;
     const cam = new Camera(video,{
       onFrame:async()=>await hands.send({image:video}),
-      width:640,height:480
+      width:640,
+      height:480
     });
     cam.start();
     statusText.innerText="Kamera aktif, gerakkan tangan...";
