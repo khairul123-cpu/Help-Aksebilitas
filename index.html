@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HEP Aksesibilitas</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;800&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+
+
+<style>
+*{box-sizing:border-box;font-family:Poppins}
+body{
+  margin:0;
+  min-height:100vh;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+.container{
+  width:95%;
+  max-width:900px;
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(15px);
+  border-radius:20px;
+  padding:30px;
+}
+.title{
+  text-align:center;
+  font-size:2.6rem;
+  font-weight:800;
+  background:linear-gradient(90deg,#00f2fe,#4facfe,#00f2fe);
+  background-size:300%;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:glow 4s infinite;
+}
+@keyframes glow{
+  0%{background-position:0%}
+  50%{background-position:100%}
+  100%{background-position:0%}
+}
+.subtitle{text-align:center;opacity:.8;margin-bottom:20px}
+.menu{
+  display:flex;justify-content:center;gap:15px;flex-wrap:wrap;margin-bottom:20px
+}
+.menu button{
+  border:none;padding:12px 22px;border-radius:40px;
+  font-weight:600;cursor:pointer;
+  background:linear-gradient(135deg,#00f2fe,#4facfe)
+}
+.content{display:none}
+.content.active{display:block}
+.video-box{display:flex;justify-content:center;margin-top:20px}
+video,canvas{
+  width:100%;max-width:420px;border-radius:15px;
+  border:3px solid #4facfe
+}
+.status{text-align:center;margin-top:15px;color:#00f2fe;font-weight:600}
+</style>
+</head>
+
+<body>
+<div class="container">
+  <div class="title">HELP AKSESIBILITAS</div>
+  <div class="subtitle">Komunikasi dengan Gerakan Tangan</div>
+
+  <div class="menu">
+    <button onclick="showPage('guide')">📘 Panduan</button>
+    <button onclick="showPage('scan')">📷 Scan Gerakan</button>
+  </div>
+
+  <div class="notice">
+  ⚠️ Mohon maaf, website ini sedang dalam tahap pengembangan dan<br>
+  perbaikan banyak bug. Mohon pengertiannya.
+</div>
+
+  <div id="guide" class="content active">
+    <ul>
+      <li>✋ 5 jari → Halo</li>
+      <li>✊ 0 jari → Saya butuh bantuan</li>
+      <li>👍 1 jari (jempol) → Terima kasih</li>
+    </ul>
+  </div>
+
+  <div id="scan" class="content">
+    <div class="video-box">
+      <video id="video" autoplay muted></video>
+      <canvas id="canvas"></canvas>
+    </div>
+    <div class="status" id="status">Menunggu kamera...</div>
+  </div>
+</div>
+
+<script>
+const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+const statusText = document.getElementById("status");
+
+let lastSpeak = 0;
+const HOLD = 8;
+let holdCount = 0;
+let lastGesture = "";
+
+function showPage(id){
+  document.querySelectorAll(".content").forEach(c=>c.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  if(id==="scan") startCamera();
+}
+
+function speak(text){
+  const now = Date.now();
+  if(now-lastSpeak<4000) return;
+  const msg = new SpeechSynthesisUtterance(text);
+  msg.lang="id-ID";
+  speechSynthesis.cancel();
+  speechSynthesis.speak(msg);
+  lastSpeak = now;
+}
+
+const hands = new Hands({
+  locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`
+});
+
+hands.setOptions({
+  maxNumHands:1,
+  modelComplexity:1,
+  minDetectionConfidence:0.8,
+  minTrackingConfidence:0.8
+});
+
+hands.onResults(res=>{
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  ctx.drawImage(video,0,0);
+
+  if(!res.multiHandLandmarks.length) return;
+
+  const lm = res.multiHandLandmarks[0];
+  const hand = res.multiHandedness[0].label;
+
+  const fingerUp = (tip,pip)=> lm[tip].y < lm[pip].y;
+  const thumbUp = hand==="Right" ? lm[4].x < lm[3].x : lm[4].x > lm[3].x;
+
+  const indexUp  = fingerUp(8,6);
+  const middleUp = fingerUp(12,10);
+  const ringUp   = fingerUp(16,14);
+  const pinkyUp  = fingerUp(20,18);
+
+  const totalUp =
+    (thumbUp?1:0)+(indexUp?1:0)+(middleUp?1:0)+(ringUp?1:0)+(pinkyUp?1:0);
+
+  let gesture="";
+  if(totalUp===5) gesture="OPEN";
+  else if(totalUp===0) gesture="FIST";
+  else if(totalUp===1 && thumbUp) gesture="THUMB";
+
+  if(gesture===lastGesture && gesture!==""){
+    holdCount++;
+  }else{
+    holdCount=0;
+    lastGesture=gesture;
+  }
+
+  if(holdCount===HOLD){
+    if(gesture==="OPEN"){
+      speak("Halo");
+      statusText.innerText="✋ Halo";
+    }
+    if(gesture==="FIST"){
+      speak("Saya butuh bantuan");
+      statusText.innerText="✊ Saya butuh bantuan";
+    }
+    if(gesture==="THUMB"){
+      speak("Terima kasih");
+      statusText.innerText="👍 Terima kasih";
+    }
+  }
+});
+
+function startCamera(){
+  navigator.mediaDevices.getUserMedia({video:true}).then(stream=>{
+    video.srcObject=stream;
+    const cam = new Camera(video,{
+      onFrame:async()=>await hands.send({image:video}),
+      width:640,height:480
+    });
+    cam.start();
+    statusText.innerText="Kamera aktif, gerakkan tangan...";
+  });
+}
+</script>
+</body>
+</html>
