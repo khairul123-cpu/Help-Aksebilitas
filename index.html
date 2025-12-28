@@ -2,220 +2,656 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HEP Aksesibilitas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>HEP Aksesibilitas Ultimate Bilingual</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;800&display=swap" rel="stylesheet">
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
+<!-- MediaPipe Libraries -->
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
 
 <style>
-*{box-sizing:border-box;font-family:Poppins}
-body{
-  margin:0;
-  min-height:100vh;
-  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-  color:#fff;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
-.container{
-  width:95%;
-  max-width:900px;
-  background:rgba(255,255,255,0.08);
-  backdrop-filter:blur(15px);
-  border-radius:20px;
-  padding:30px;
-}
-.title{
-  text-align:center;
-  font-size:2.6rem;
-  font-weight:800;
-  background:linear-gradient(90deg,#00f2fe,#4facfe,#00f2fe);
-  background-size:300%;
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  animation:glow 4s infinite;
-}
-@keyframes glow{
-  0%{background-position:0%}
-  50%{background-position:100%}
-  100%{background-position:0%}
-}
-.subtitle{text-align:center;opacity:.8;margin-bottom:20px}
-.menu{
-  display:flex;justify-content:center;gap:15px;flex-wrap:wrap;margin-bottom:20px
-}
-.menu button{
-  border:none;padding:12px 22px;border-radius:40px;
-  font-weight:600;cursor:pointer;
-  background:linear-gradient(135deg,#00f2fe,#4facfe)
-}
-.content{display:none}
-.content.active{display:block}
-.video-box{display:flex;justify-content:center;margin-top:20px}
-video,canvas{
-  width:100%;max-width:420px;border-radius:15px;
-  border:3px solid #4facfe
-}
-.status{text-align:center;margin-top:15px;color:#00f2fe;font-weight:600}
-.notice{
-  text-align:center;
-  margin-bottom:15px;
-  animation:pulse 2s infinite;
-  color:#ffd86b;
-}
-@keyframes pulse{
-  0%{opacity:.5}
-  50%{opacity:1}
-  100%{opacity:.5}
-}
+  :root {
+    --bg-dark: #05050b;
+    --bg-panel: #0f0f1a;
+    --primary: #00f3ff;
+    --secondary: #0066ff;
+    --warning: #ffaa00;
+    --text-main: #ffffff;
+    --text-dim: #8892b0;
+    --glass: rgba(0, 243, 255, 0.05);
+    --border: rgba(0, 243, 255, 0.2);
+  }
+
+  * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image: 
+      radial-gradient(circle at 50% 0%, #001f3f 0%, transparent 60%),
+      linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+  }
+
+  /* --- NAVBAR --- */
+  .navbar {
+    position: fixed; top: 0; left: 0; width: 100%;
+    padding: 15px 20px;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 1000;
+    background: rgba(5, 5, 11, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .brand {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: 1.2rem;
+    color: var(--primary);
+    text-shadow: 0 0 10px var(--primary);
+    cursor: pointer;
+  }
+
+  .nav-btn {
+    background: var(--glass);
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: 0.3s;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .nav-btn:hover { background: var(--primary); color: #000; box-shadow: 0 0 15px var(--primary); }
+
+  /* --- PAGES --- */
+  .page-container {
+    padding: 80px 20px 20px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .hidden { display: none !important; }
+  .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* --- NOTICE BANNER (ANIMATION KEREN) --- */
+  .notice-banner {
+    background: rgba(255, 170, 0, 0.1);
+    border: 1px solid var(--warning);
+    border-radius: 12px;
+    padding: 15px 20px;
+    text-align: center;
+    margin-bottom: 40px;
+    color: var(--warning);
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    animation: pulse-warning 2s infinite ease-in-out;
+    box-shadow: 0 0 10px rgba(255, 170, 0, 0.1);
+  }
+
+  @keyframes pulse-warning {
+    0% { box-shadow: 0 0 0 rgba(255, 170, 0, 0); border-color: rgba(255, 170, 0, 0.4); }
+    50% { box-shadow: 0 0 20px rgba(255, 170, 0, 0.3); border-color: var(--warning); }
+    100% { box-shadow: 0 0 0 rgba(255, 170, 0, 0); border-color: rgba(255, 170, 0, 0.4); }
+  }
+
+  /* --- HOME & CARDS --- */
+  .hero-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 3rem;
+    text-align: center;
+    line-height: 1.1;
+    margin-bottom: 10px;
+    background: linear-gradient(to right, #fff, var(--primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero-subtitle { text-align: center; color: var(--text-dim); margin-bottom: 20px; font-size: 1.1rem; }
+
+  .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; width: 100%; }
+
+  .menu-card {
+    background: linear-gradient(145deg, var(--bg-panel), #131322);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+  }
+
+  .menu-card::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px;
+    background: var(--primary); transform: scaleX(0); transition: 0.4s;
+  }
+  .menu-card:hover { transform: translateY(-10px); box-shadow: 0 10px 30px rgba(0, 243, 255, 0.15); }
+  .menu-card:hover::before { transform: scaleX(1); }
+
+  .card-icon { font-size: 3rem; margin-bottom: 20px; color: var(--primary); filter: drop-shadow(0 0 10px rgba(0,243,255,0.5)); }
+  .card-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 10px; color: #fff; }
+  .card-desc { color: var(--text-dim); font-size: 0.9rem; }
+
+  /* --- SCAN UI --- */
+  .scan-wrapper { width: 100%; display: flex; justify-content: center; position: relative; }
+
+  .hud-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 2px solid var(--border);
+    box-shadow: 0 0 40px rgba(0, 243, 255, 0.1);
+    background: #000;
+    aspect-ratio: 16/9;
+  }
+
+  /* --- LANGUAGE SWITCH --- */
+  .lang-switch {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(0,0,0,0.6);
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: bold;
+    font-size: 0.9rem;
+    cursor: pointer;
+    z-index: 20;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .lang-switch:hover { background: var(--primary); color: #000; }
+  .lang-switch span.active { text-shadow: 0 0 5px #fff; font-size: 1.1em; }
+
+  .video-layer, .canvas-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+  .video-layer { transform: scaleX(-1); }
+
+  .scan-overlay { position: absolute; inset: 0; border: 1px solid rgba(0, 243, 255, 0.1); pointer-events: none; }
+  .corner { position: absolute; width: 30px; height: 30px; border-color: var(--primary); border-style: solid; transition: all 0.3s; }
+  .tl { top: 10px; left: 10px; border-width: 4px 0 0 4px; }
+  .tr { top: 10px; right: 10px; border-width: 4px 4px 0 0; }
+  .bl { bottom: 10px; left: 10px; border-width: 0 0 4px 4px; }
+  .br { bottom: 10px; right: 10px; border-width: 0 4px 4px 0; }
+
+  .finger-hud {
+    position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 8px; z-index: 10;
+  }
+  .finger-ind {
+    width: 25px; height: 25px; border-radius: 50%;
+    background: rgba(0,0,0,0.5); border: 1px solid #555;
+    color: #777; font-size: 0.7rem;
+    display: flex; justify-content: center; align-items: center;
+    transition: 0.2s;
+  }
+  .finger-ind.active { background: var(--primary); color: #000; border-color: #fff; box-shadow: 0 0 10px var(--primary); font-weight: bold; }
+
+  .status-box {
+    position: absolute; bottom: 0; left: 0; width: 100%;
+    background: rgba(0,0,0,0.8); border-top: 1px solid var(--primary);
+    padding: 10px 20px; text-align: center; z-index: 10;
+  }
+  .status-text { color: var(--primary); font-weight: bold; font-size: 1.1rem; font-family:'Orbitron'; }
+  .hint-text { color: #aaa; font-size: 0.8rem; margin-top: 5px; }
+  .progress-bar { width: 100%; max-width: 300px; height: 4px; background: #333; margin: 10px auto 0; border-radius: 2px; }
+  .progress-fill { height: 100%; width: 0%; background: var(--primary); transition: width 0.1s; box-shadow: 0 0 8px var(--primary); }
+
+  /* --- GRIDS --- */
+  .grid-section { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; width: 100%; }
+  
+  .item-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    transition: 0.3s;
+  }
+  .item-card:hover { background: rgba(0, 243, 255, 0.1); border-color: var(--primary); transform: translateY(-3px); }
+  .item-card.active { border-color: var(--primary); background: rgba(0, 243, 255, 0.15); box-shadow: 0 0 15px rgba(0,243,255,0.2); }
+  .item-icon { font-size: 2rem; margin-bottom: 15px; color: var(--text-main); }
+  .item-title { font-weight: 600; color: #fff; margin-bottom: 5px; }
+  .item-desc { font-size: 0.8rem; color: var(--text-dim); }
+  
+  .link-btn { display: inline-block; margin-top: 10px; padding: 5px 15px; background: transparent; border: 1px solid var(--primary); color: var(--primary); text-decoration: none; border-radius: 20px; font-size: 0.8rem; }
+  .link-btn:hover { background: var(--primary); color: #000; }
+
+  #toast {
+    position: fixed; top: 80px; right: 20px;
+    background: linear-gradient(90deg, var(--secondary), var(--primary));
+    padding: 15px 25px; border-radius: 10px;
+    color: #000; font-weight: bold; z-index: 2000;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+    transform: translateX(200%); transition: 0.4s;
+  }
+  #toast.show { transform: translateX(0); }
+
+  @media (max-width: 768px) {
+    .hero-title { font-size: 2rem; }
+    .menu-grid { grid-template-columns: 1fr; }
+    .notice-banner { flex-direction: column; text-align: center; }
+  }
 </style>
 </head>
-
 <body>
-<div class="container">
-  <div class="title">HELP AKSESIBILITAS</div>
-  <div class="subtitle">Komunikasi dengan Gerakan Tangan</div>
 
-  <div class="menu">
-    <button onclick="showPage('guide')">📘 Panduan</button>
-    <button onclick="showPage('scan')">📷 Scan Gerakan</button>
-  </div>
+<nav class="navbar">
+  <div class="brand" onclick="navigateTo('home')">HEP <span style="color:#fff">PRO</span></div>
+  <button class="nav-btn" onclick="navigateTo('home')"><i class="fas fa-home"></i> Home</button>
+</nav>
 
-  <div class="notice">
-    ⚠️ Mohon maaf, website ini sedang dalam tahap pengembangan dan<br>
-    perbaikan banyak bug. Mohon pengertiannya.
-  </div>
+<div id="toast">Action Detected</div>
 
-  <div id="guide" class="content active">
-    <ul>
-      <li>✋ 5 jari → Halo</li>
-      <li>✊ 0 jari → Saya butuh bantuan</li>
-      <li>👍 1 jari (jempol) → Terima kasih</li>
-    </ul>
-  </div>
-
-  <div id="scan" class="content">
-    <div class="video-box">
-      <video id="video" autoplay muted></video>
-      <canvas id="canvas"></canvas>
+<div class="page-container">
+  <!-- HOME -->
+  <div id="page-home" class="page fade-in">
+    <h1 class="hero-title">Sistem Aksesibilitas<br><span style="color:var(--primary)">Ultimate</span></h1>
+    <p class="hero-subtitle">Pilih menu di bawah ini untuk memulai.</p>
+    
+    <div class="notice-banner">
+      <i class="fas fa-exclamation-triangle fa-2x"></i>
+      <div>
+        <strong>PERINGATAN PENGEMBANGAN</strong><br>
+        Mohon maaf website ini dalam pengembangan/perbaikan bug, mohon di maklumi yaaa.
+      </div>
     </div>
-    <div class="status" id="status">Menunggu kamera...</div>
+
+    <div class="menu-grid">
+      <div class="menu-card" onclick="navigateTo('scan')">
+        <i class="fas fa-crosshairs card-icon"></i>
+        <div class="card-title">Mulai Scan</div>
+        <div class="card-desc">Deteksi presisi tinggi + Bilingual.</div>
+      </div>
+      <div class="menu-card" onclick="navigateTo('guide')">
+        <i class="fas fa-book card-icon"></i>
+        <div class="card-title">Panduan</div>
+        <div class="card-desc">Cara melakukan gerakan.</div>
+      </div>
+      <div class="menu-card" onclick="navigateTo('links')">
+        <i class="fas fa-link card-icon"></i>
+        <div class="card-title">Menu Links</div>
+        <div class="card-desc">Akses website cepat.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCAN -->
+  <div id="page-scan" class="page hidden fade-in">
+    <div class="scan-wrapper">
+      <div class="hud-wrapper">
+        <!-- LANGUAGE SWITCH BUTTON -->
+        <div class="lang-switch" onclick="toggleLanguage()">
+          <span id="txt-id" class="active">ID</span> / <span id="txt-en">EN</span>
+        </div>
+
+        <div class="scan-overlay">
+          <div class="corner tl"></div><div class="corner tr"></div>
+          <div class="corner bl"></div><div class="corner br"></div>
+        </div>
+        <video id="video" class="video-layer" autoplay muted playsinline></video>
+        <canvas id="canvas" class="canvas-layer"></canvas>
+        
+        <div class="finger-hud">
+          <div id="ind-thumb" class="finger-ind"><i class="fas fa-hand-point-up"></i></div>
+          <div id="ind-index" class="finger-ind"><i class="fas fa-hand-point-right"></i></div>
+          <div id="ind-middle" class="finger-ind"><i class="fas fa-hand-middle-finger"></i></div>
+          <div id="ind-ring" class="finger-ind"><i class="fas fa-hand-ring"></i></div>
+          <div id="ind-pinky" class="finger-ind"><i class="fas fa-hand-pinky"></i></div>
+        </div>
+
+        <div class="status-box">
+          <div class="status-text" id="status-text">INITIALIZING...</div>
+          <div class="hint-text" id="hint-text">Sistem Siap</div>
+          <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GUIDE -->
+  <div id="page-guide" class="page hidden fade-in">
+    <h2 style="text-align: center; color: var(--primary); margin-bottom:30px;">Panduan Gerakan</h2>
+    <div class="grid-section" id="guide-grid"></div>
+  </div>
+
+  <!-- LINKS -->
+  <div id="page-links" class="page hidden fade-in">
+    <h2 style="text-align: center; color: var(--primary); margin-bottom:30px;">Akses Cepat</h2>
+    <div class="grid-section" id="links-grid"></div>
   </div>
 </div>
 
 <script>
-const video = document.getElementById("video");
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-const statusText = document.getElementById("status");
+/* ================= DATA & CONFIG ================= */
+const HOLD_FRAMES = 10;
+const sfxScanStart = new Audio("https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"); 
+sfxScanStart.volume = 0.5;
 
-const HOLD = 8;
+// Data Konfigurasi: 10 Suara Indo + 10 Suara Inggris
+const GESTURES = [
+  { id: 'HALO', icon: '✋', title: 'Halo', titleEN: 'Hello', desc: '5 Jari Lurus', audio: 'halo.mp3.mp3', audioEN: 'hello.mp3.mp3' },
+  { id: 'BANTUAN', icon: '✊', title: 'Bantuan', titleEN: 'Help', desc: 'Kepalan Tangan', audio: 'bantuan.mp3.mp3', audioEN: 'help_en.mp3.mp3' },
+  { id: 'TERIMA', icon: '👍', title: 'Terima Kasih', titleEN: 'Thank You', desc: 'Jempol Atas', audio: 'terima.mp3', audioEN: 'thanks_en.mp3.mp3' },
+  { id: 'MAAF', icon: '☝️', title: 'Maaf', titleEN: 'Sorry', desc: 'Telunjuk Saja', audio: 'maaf.mp3.mp3', audioEN: 'sorry_en.mp3.mp3' },
+  { id: 'SETUJU', icon: '✌️', title: 'Setuju', titleEN: 'Agree', desc: 'Victory Sign', audio: 'setuju.mp3.mp3', audioEN: 'yes_en.mp3.mp3' },
+  { id: 'TOILET', icon: '🚽', title: 'Toilet', titleEN: 'Toilet', desc: '4 Jari', audio: 'toilet.mp3.mp3', audioEN: 'toilet_en.mp3.mp3' },
+  { id: 'OK', icon: '👌', title: 'Mengerti', titleEN: 'Okay', desc: 'Tanda OK', audio: 'ok.mp3.mp3', audioEN: 'ok_en.mp3.mp3' },
+  { id: 'ROCK', icon: '🤟', title: 'Senang', titleEN: 'Rock', desc: 'Metal Sign', audio: 'rock.mp3.mp3', audioEN: 'rock_en.mp3.mp3' },
+  { id: 'TELEPON', icon: '🤙', title: 'Telepon', titleEN: 'Call', desc: 'Shaka Sign', audio: 'telepon.mp3.mp3', audioEN: 'call_en.mp3.mp3' },
+  { id: 'MAKAN', icon: '🤤', title: 'Makan', titleEN: 'Eat', desc: '3 Jari', audio: 'makan.mp3.mp3', audioEN: 'eat_en.mp3.mp3' }
+];
+
+const LINKS = [
+  { name: "Chat GPT", url: "https://chatgpt.com/share/694ca24c-f83c-8010-943e-5b512b0bb17f", icon: "fas fa-comments" },
+  { name: "ZAI AI", url: "https://chat.z.ai/s/8f6cc509-13d8-4f46-aea5-7b9c81ad84ef", icon: "fas fa-brain" },
+];
+
+/* ================= UI LOGIC ================= */
+const pages = ['home', 'scan', 'guide', 'links'];
+let cameraInstance = null;
+let isCameraRunning = false;
+let currentLang = 'ID'; // Default Bahasa Indonesia
+
+// Setup Audio Objects (opsional, disini kita load on the fly biar hemat memori)
+// Kita akan menggunakan new Audio(filename) saat trigger saja
+
+function navigateTo(targetId) {
+  pages.forEach(id => {
+    document.getElementById(`page-${id}`).classList.add('hidden');
+    document.getElementById(`page-${id}`).classList.remove('fade-in');
+  });
+  const targetPage = document.getElementById(`page-${targetId}`);
+  targetPage.classList.remove('hidden');
+  void targetPage.offsetWidth; 
+  targetPage.classList.add('fade-in');
+
+  if (targetId === 'scan') {
+    sfxScanStart.play().catch(e => console.log("Audio interaction needed"));
+    startCamera();
+  } else {
+    stopCamera();
+  }
+}
+
+// Fungsi Ganti Bahasa
+function toggleLanguage() {
+  currentLang = (currentLang === 'ID') ? 'EN' : 'ID';
+  
+  const txtId = document.getElementById('txt-id');
+  const txtEn = document.getElementById('txt-en');
+  
+  if(currentLang === 'ID') {
+    txtId.classList.add('active');
+    txtEn.classList.remove('active');
+    document.getElementById('hint-text').innerText = "Mode Bahasa: Indonesia";
+  } else {
+    txtId.classList.remove('active');
+    txtEn.classList.add('active');
+    document.getElementById('hint-text').innerText = "Language Mode: English";
+  }
+}
+
+// Render Guide Cards
+const guideGrid = document.getElementById('guide-grid');
+GESTURES.forEach(g => {
+  guideGrid.innerHTML += `
+    <div class="item-card" id="card-${g.id}">
+      <div class="item-icon">${g.icon}</div>
+      <div class="item-title">${g.title}</div>
+      <div class="item-desc">${g.desc}</div>
+    </div>
+  `;
+});
+
+// Render Link Cards
+const linksGrid = document.getElementById('links-grid');
+LINKS.forEach(l => {
+  linksGrid.innerHTML += `
+    <div class="item-card">
+      <div class="item-icon"><i class="${l.icon}"></i></div>
+      <div class="item-title">${l.name}</div>
+      <a href="${l.url}" target="_blank" class="link-btn">Buka Link <i class="fas fa-external-link-alt"></i></a>
+    </div>
+  `;
+});
+
+/* ================= CAMERA FIX ================= */
+const video = document.getElementById('video');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const statusText = document.getElementById('status-text');
+const hintText = document.getElementById('hint-text');
+const progressFill = document.getElementById('progress-fill');
+const toast = document.getElementById('toast');
+
+const inds = {
+  thumb: document.getElementById('ind-thumb'),
+  index: document.getElementById('ind-index'),
+  middle: document.getElementById('ind-middle'),
+  ring: document.getElementById('ind-ring'),
+  pinky: document.getElementById('ind-pinky')
+};
+
 let holdCount = 0;
 let lastGesture = "";
 
-/* =========================
-   SUARA SENDIRI (GANTI SAJA INI)
-========================= */
-const audioHalo = new Audio("halo.mp3");
-const audioBantuan = new Audio("saya butuh bantuan.mp3");
-const audioTerima = new Audio("terima kasih.mp3");
+function startCamera() {
+  if (isCameraRunning) return;
+  
+  const hands = new Hands({locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`});
+  hands.setOptions({maxNumHands: 1, modelComplexity: 1, minDetectionConfidence: 0.8, minTrackingConfidence: 0.8});
+  hands.onResults(onResults);
 
-function playAudio(type){
-  audioHalo.pause();
-  audioBantuan.pause();
-  audioTerima.pause();
+  cameraInstance = new Camera(video, {
+    onFrame: async () => await hands.send({image: video}),
+    width: 640, height: 360
+  });
 
-  audioHalo.currentTime = 0;
-  audioBantuan.currentTime = 0;
-  audioTerima.currentTime = 0;
-
-  if(type==="HALO") audioHalo.play();
-  if(type==="BANTUAN") audioBantuan.play();
-  if(type==="TERIMA") audioTerima.play();
-}
-/* ========================= */
-
-function showPage(id){
-  document.querySelectorAll(".content").forEach(c=>c.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  if(id==="scan") startCamera();
+  cameraInstance.start()
+    .then(() => { isCameraRunning = true; statusText.innerText = "KAMERA AKTIF"; })
+    .catch(err => { 
+      console.error(err); 
+      statusText.innerText = "ERROR: Akses Kamera Ditolak"; 
+      hintText.innerText = "Mohon izinkan akses kamera.";
+    });
 }
 
-const hands = new Hands({
-  locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`
-});
+function stopCamera() {
+  if (!isCameraRunning) return;
+  if (cameraInstance) {
+    cameraInstance.stop();
+    cameraInstance = null;
+  }
+  if (video.srcObject) {
+    const tracks = video.srcObject.getTracks();
+    tracks.forEach(track => track.stop());
+    video.srcObject = null;
+  }
+  isCameraRunning = false;
+}
 
-hands.setOptions({
-  maxNumHands:1,
-  modelComplexity:1,
-  minDetectionConfidence:0.8,
-  minTrackingConfidence:0.8
-});
+/* ================= SUPER ACCURATE ANGLE LOGIC ================= */
 
-hands.onResults(res=>{
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+function calculateAngle(a, b, c) {
+    const radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
+    let angle = Math.abs(radians * 180.0 / Math.PI);
+    if (angle > 180.0) angle = 360 - angle;
+    return angle;
+}
+
+function getDistance(p1, p2) {
+    return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+}
+
+function onResults(results) {
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
-  ctx.drawImage(video,0,0);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.save();
+  ctx.scale(-1, 1);
+  ctx.translate(-canvas.width, 0);
 
-  if(!res.multiHandLandmarks.length) return;
+  if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+    const lm = results.multiHandLandmarks[0];
+    const hand = results.multiHandedness[0].label;
 
-  const lm = res.multiHandLandmarks[0];
-  const hand = res.multiHandedness[0].label;
+    drawConnectors(ctx, lm, HAND_CONNECTIONS, {color: 'rgba(0, 243, 255, 0.5)', lineWidth: 2});
+    drawLandmarks(ctx, lm, {color: '#ff0055', lineWidth: 1, radius: 3});
 
-  const fingerUp = (tip,pip)=> lm[tip].y < lm[pip].y;
-  const thumbUp = hand==="Right" ? lm[4].x < lm[3].x : lm[4].x > lm[3].x;
+    // Angle Based Detection
+    const indexAngle = calculateAngle(lm[5], lm[6], lm[8]);
+    const indexStraight = indexAngle > 160;
 
-  const totalUp =
-    (thumbUp?1:0) +
-    (fingerUp(8,6)?1:0) +
-    (fingerUp(12,10)?1:0) +
-    (fingerUp(16,14)?1:0) +
-    (fingerUp(20,18)?1:0);
+    const middleAngle = calculateAngle(lm[9], lm[10], lm[12]);
+    const middleStraight = middleAngle > 160;
 
-  let gesture="";
-  if(totalUp===5) gesture="OPEN";
-  else if(totalUp===0) gesture="FIST";
-  else if(totalUp===1 && thumbUp) gesture="THUMB";
+    const ringAngle = calculateAngle(lm[13], lm[14], lm[16]);
+    const ringStraight = ringAngle > 160;
 
-  if(gesture===lastGesture && gesture!==""){
-    holdCount++;
-  }else{
-    holdCount=0;
-    lastGesture=gesture;
+    const pinkyAngle = calculateAngle(lm[17], lm[18], lm[20]);
+    const pinkyStraight = pinkyAngle > 160;
+
+    const distThumbPinky = getDistance(lm[4], lm[17]);
+    const thumbStraight = distThumbPinky > 0.15; 
+
+    const f = {
+      thumb: thumbStraight,
+      index: indexStraight,
+      middle: middleStraight,
+      ring: ringStraight,
+      pinky: pinkyStraight
+    };
+
+    updateFingerHUD(f);
+    const count = Object.values(f).filter(Boolean).length;
+    let gesture = "";
+
+    const distThumbIndex = getDistance(lm[4], lm[8]);
+    if (distThumbIndex < 0.05) gesture = "OK";
+    else if (count === 5) gesture = "HALO";
+    else if (count === 0) gesture = "BANTUAN";
+    else if (f.thumb && !f.index && !f.middle && !f.ring && !f.pinky) gesture = "TERIMA";
+    else if (!f.thumb && f.index && !f.middle && !f.ring && !f.pinky) gesture = "MAAF";
+    else if (!f.thumb && f.index && f.middle && !f.ring && !f.pinky) gesture = "SETUJU";
+    else if (!f.thumb && f.index && f.middle && f.ring && f.pinky) gesture = "TOILET";
+    else if (f.index && f.pinky && !f.middle && !f.ring && !f.thumb) gesture = "ROCK";
+    else if (f.thumb && f.pinky && !f.index && !f.middle && !f.ring) gesture = "TELEPON";
+    else if (count === 3) gesture = "MAKAN";
+
+    ctx.restore();
+
+    document.querySelectorAll('.item-card').forEach(c => c.classList.remove('active'));
+    if(gesture) {
+      const card = document.getElementById(`card-${gesture}`);
+      if(card) card.classList.add('active');
+    }
+
+    if (gesture) {
+      if (gesture === lastGesture) {
+        holdCount++;
+        progressFill.style.width = Math.min((holdCount/HOLD_FRAMES)*100, 100) + "%";
+        if(holdCount >= HOLD_FRAMES) {
+          const data = GESTURES.find(g => g.id === gesture);
+          if(data) {
+            
+            // LOGIKA BAHASA
+            const displayTitle = (currentLang === 'ID') ? data.title : data.titleEN;
+            const audioFile = (currentLang === 'ID') ? data.audio : data.audioEN;
+            
+            showToast(`${data.icon} ${displayTitle}`);
+            playAudioByID(audioFile); // SUARA KITA SENDIRI
+            statusText.innerText = displayTitle;
+            statusText.style.color = "var(--primary)";
+            
+            hintText.innerText = (currentLang === 'ID') ? "Audio Diputar" : "Audio Played";
+            holdCount = 0;
+          }
+        }
+      } else {
+        holdCount = 1;
+        lastGesture = gesture;
+        statusText.innerText = `DETECTED: ${gesture}...`;
+        hintText.innerText = (currentLang === 'ID') ? "Tahan posisi..." : "Hold position...";
+      }
+    } else {
+      holdCount = 0;
+      lastGesture = "";
+      progressFill.style.width = "0%";
+      statusText.innerText = "ANALYZING...";
+      hintText.innerText = (currentLang === 'ID') ? "Posisikan tangan dengan benar" : "Position hand correctly";
+    }
+  } else {
+    ctx.restore();
+    resetHUD();
+    statusText.innerText = "NO HAND";
+    hintText.innerText = (currentLang === 'ID') ? "Letakkan tangan di frame" : "Place hand in frame";
+    progressFill.style.width = "0%";
   }
+}
 
-  if(holdCount===HOLD){
-    if(gesture==="OPEN"){
-      playAudio("HALO");
-      statusText.innerText="✋ Halo";
-    }
-    if(gesture==="FIST"){
-      playAudio("BANTUAN");
-      statusText.innerText="✊ Saya butuh bantuan";
-    }
-    if(gesture==="THUMB"){
-      playAudio("TERIMA");
-      statusText.innerText="👍 Terima kasih";
-    }
-  }
-});
+function updateFingerHUD(fingers) {
+  if(fingers.thumb) inds.thumb.classList.add('active'); else inds.thumb.classList.remove('active');
+  if(fingers.index) inds.index.classList.add('active'); else inds.index.classList.remove('active');
+  if(fingers.middle) inds.middle.classList.add('active'); else inds.middle.classList.remove('active');
+  if(fingers.ring) inds.ring.classList.add('active'); else inds.ring.classList.remove('active');
+  if(fingers.pinky) inds.pinky.classList.add('active'); else inds.pinky.classList.remove('active');
+}
 
-function startCamera(){
-  navigator.mediaDevices.getUserMedia({video:true}).then(stream=>{
-    video.srcObject=stream;
-    const cam = new Camera(video,{
-      onFrame:async()=>await hands.send({image:video}),
-      width:640,
-      height:480
-    });
-    cam.start();
-    statusText.innerText="Kamera aktif, gerakkan tangan...";
-  });
+function resetHUD() {
+  Object.values(inds).forEach(el => el.classList.remove('active'));
+}
+
+function showToast(msg) {
+  toast.innerText = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+function playAudioByID(filename) {
+  // Stop semua suara yang sedang main
+  document.querySelectorAll('audio').forEach(a => { a.pause(); a.currentTime = 0; });
+  
+  // Mainkan file spesifik
+  const audio = new Audio(filename);
+  audio.play().catch(e => console.log("Error audio:", e));
 }
 </script>
 </body>
