@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>HELP Aksesibilitas Ultimate Bilingual</title>
+<title>HandSpeak AI</title>
 
 <!-- Fonts & Icons -->
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
@@ -269,13 +269,150 @@
     .menu-grid { grid-template-columns: 1fr; }
     .notice-banner { flex-direction: column; text-align: center; }
   }
+
+  /* =========================================
+     TAMBAHAN FITUR: HISTORY & TOOLS (NEW CSS)
+     ========================================= */
+  
+  #tools-toggle {
+    position: fixed; bottom: 20px; right: 20px;
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: var(--bg-panel);
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    font-size: 1.5rem;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    z-index: 1500;
+    box-shadow: 0 0 20px rgba(0,243,255,0.3);
+    transition: 0.3s;
+  }
+  #tools-toggle:hover { transform: rotate(90deg) scale(1.1); }
+
+  .tools-panel {
+    position: fixed; top: 0; right: -100%; /* Hidden by default */
+    width: 320px; height: 100vh;
+    background: rgba(5, 5, 11, 0.95);
+    backdrop-filter: blur(15px);
+    border-left: 2px solid var(--primary);
+    z-index: 1400;
+    padding: 80px 20px 20px 20px;
+    transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex; flex-direction: column;
+    gap: 20px;
+    overflow-y: auto;
+  }
+  .tools-panel.open { right: 0; }
+
+  .panel-section {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 15px; border-radius: 12px;
+  }
+  .panel-header {
+    font-family: 'Orbitron'; color: var(--primary);
+    margin-bottom: 15px; font-size: 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+
+  /* History List */
+  .history-list {
+    list-style: none; padding: 0; margin: 0;
+    max-height: 200px; overflow-y: auto;
+  }
+  .history-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 0.85rem; animation: fadeIn 0.3s ease;
+  }
+  .history-item:last-child { border-bottom: none; }
+  .h-time { color: var(--text-dim); font-size: 0.7rem; min-width: 40px; }
+  .h-gesture { color: #fff; font-weight: 600; }
+
+  /* Toggle Switch (Mode Tuli) */
+  .switch-container { display: flex; justify-content: space-between; align-items: center; }
+  .switch {
+    position: relative; display: inline-block; width: 50px; height: 24px;
+  }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #333; transition: .4s; border-radius: 24px;
+  }
+  .slider:before {
+    position: absolute; content: ""; height: 16px; width: 16px;
+    left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%;
+  }
+  input:checked + .slider { background-color: var(--primary); }
+  input:checked + .slider:before { transform: translateX(26px); }
+
+  /* Slider Kalibrasi */
+  .range-wrap { margin-top: 10px; }
+  .range-label { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 5px; }
+  input[type=range] {
+    width: 100%; -webkit-appearance: none; background: transparent;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%;
+    background: var(--primary); cursor: pointer; margin-top: -6px; box-shadow: 0 0 10px var(--primary);
+  }
+  input[type=range]::-webkit-slider-runnable-track {
+    width: 100%; height: 4px; background: #333; border-radius: 2px;
+  }
+
+  .close-tools { font-size: 1.5rem; color: var(--text-dim); cursor: pointer; }
+  .close-tools:hover { color: #fff; }
+
+  /* =========================================
+     TAMBAHAN FITUR: ULTIMATE UPGRADE (NEW CSS)
+     ========================================= */
+
+  /* 1. Confidence Score & Fullscreen Icon */
+  .top-ui-row {
+    position: absolute; top: 15px; left: 15px; display: flex; gap: 10px; z-index: 20;
+  }
+  .pill {
+    background: rgba(0,0,0,0.6); border: 1px solid var(--primary);
+    color: var(--primary); padding: 5px 12px; border-radius: 15px;
+    font-family: 'Orbitron'; font-size: 0.75rem; display: flex; align-items: center; gap: 5px;
+  }
+  
+  /* 2. Gesture Preview Animation */
+  #preview-overlay {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
+    font-size: 8rem; z-index: 50; pointer-events: none;
+    opacity: 0; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
+    filter: drop-shadow(0 0 20px var(--primary));
+  }
+  #preview-overlay.active {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+
+  /* 3. Mode Selection Buttons */
+  .mode-btn-group { display: flex; gap: 5px; margin-bottom: 10px; }
+  .mode-btn {
+    flex: 1; padding: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-dim); border-radius: 5px; cursor: pointer; font-size: 0.75rem; text-align: center; transition: 0.2s;
+  }
+  .mode-btn.active { background: var(--primary); color: #000; font-weight: bold; border-color: var(--primary); }
+  .mode-btn:hover:not(.active) { background: rgba(255,255,255,0.1); }
+
+  /* 4. Fullscreen Button in Navbar */
+  #fs-btn { background: transparent; border: none; color: var(--primary); font-size: 1.2rem; cursor: pointer; }
+  #fs-btn:hover { text-shadow: 0 0 10px var(--primary); }
+
 </style>
 </head>
 <body>
 
 <nav class="navbar">
-  <div class="brand" onclick="navigateTo('home')">HELP <span style="color:#fff">PRO</span></div>
-  <button class="nav-btn" onclick="navigateTo('home')"><i class="fas fa-home"></i> Home</button>
+  <div class="brand" onclick="navigateTo('home')">HandSpeak AI <span style="color:#fff">PRO</span></div>
+  <div style="display:flex; gap:10px;">
+    <button id="fs-btn" onclick="toggleFullscreen()" title="Fullscreen Mode"><i class="fas fa-expand"></i></button>
+    <button class="nav-btn" onclick="navigateTo('home')"><i class="fas fa-home"></i> Home</button>
+  </div>
 </nav>
 
 <div id="toast">Action Detected</div>
@@ -283,16 +420,10 @@
 <div class="page-container">
   <!-- HOME -->
   <div id="page-home" class="page fade-in">
-    <h1 class="hero-title">Sistem Aksesibilitas<br><span style="color:var(--primary)">Ultimate</span></h1>
+    <h1 class="hero-title">SIGNA<br><span style="color:var(--primary)">(Sign Language Assistant)</span></h1>
     <p class="hero-subtitle">Pilih menu di bawah ini untuk memulai.</p>
     
-    <div class="notice-banner">
-      <i class="fas fa-exclamation-triangle fa-2x"></i>
-      <div>
-        <strong>PERINGATAN PENGEMBANGAN</strong><br>
-        Mohon maaf website ini dalam pengembangan/perbaikan bug, mohon di maklumi yaaa.
-      </div>
-    </div>
+    
 
     <div class="menu-grid">
       <div class="menu-card" onclick="navigateTo('scan')">
@@ -322,12 +453,21 @@
           <span id="txt-id" class="active">ID</span> / <span id="txt-en">EN</span>
         </div>
 
+        <!-- NEW UI: CONFIDENCE SCORE & MULTI-HAND INDICATOR -->
+        <div class="top-ui-row">
+          <div class="pill" id="conf-display"><i class="fas fa-bullseye"></i> 0%</div>
+          <div class="pill" id="hand-count-display" style="display:none;"><i class="fas fa-hand-paper"></i> 2 Hand</div>
+        </div>
+
         <div class="scan-overlay">
           <div class="corner tl"></div><div class="corner tr"></div>
           <div class="corner bl"></div><div class="corner br"></div>
         </div>
         <video id="video" class="video-layer" autoplay muted playsinline></video>
         <canvas id="canvas" class="canvas-layer"></canvas>
+        
+        <!-- NEW UI: PREVIEW ANIMATION -->
+        <div id="preview-overlay">✋</div>
         
         <div class="finger-hud">
           <div id="ind-thumb" class="finger-ind"><i class="fas fa-hand-point-up"></i></div>
@@ -359,16 +499,108 @@
   </div>
 </div>
 
+<!-- =========================================================
+     TAMBAHAN FITUR: UI BARU (HTML)
+     ========================================================= -->
+
+<!-- Tombol Tools Melayang -->
+<div id="tools-toggle" onclick="toggleToolsPanel()">
+  <i class="fas fa-cogs"></i>
+</div>
+
+<!-- Panel Settings & History -->
+<div class="tools-panel" id="tools-panel">
+  <div class="panel-header">
+    <span>SYSTEM TOOLS ULTIMATE</span>
+    <i class="fas fa-times close-tools" onclick="toggleToolsPanel()"></i>
+  </div>
+
+  <!-- 1. Mode Anak / Lansia (NEW) -->
+  <div class="panel-section">
+    <div class="panel-header">MODE PENGGUNA</div>
+    <div style="font-size:0.75rem; color:var(--text-dim); margin-bottom:10px;">Atur sensitivitas & durasi tahan:</div>
+    <div class="mode-btn-group">
+      <div class="mode-btn" onclick="setUserMode('anak')" id="btn-anak">ANAK</div>
+      <div class="mode-btn active" onclick="setUserMode('standard')" id="btn-std">STANDAR</div>
+      <div class="mode-btn" onclick="setUserMode('lansia')" id="btn-lansia">LANSIA</div>
+    </div>
+    <div style="font-size:0.7rem; color:var(--primary); text-align:center;" id="mode-desc">Mode Standar</div>
+  </div>
+
+  <!-- 2. Performance & Multi-Hand (NEW) -->
+  <div class="panel-section">
+    <div class="panel-header">PERFORMANCE & TRACKING</div>
+    
+    <div class="switch-container" style="margin-bottom:15px;">
+      <span style="font-size: 0.9rem; color: #fff;">High Performance (Lambat)</span>
+      <label class="switch">
+        <input type="checkbox" id="perf-toggle" onchange="applySettings()">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="switch-container">
+      <span style="font-size: 0.9rem; color: #fff;">Multi-Hand (2 Tangan)</span>
+      <label class="switch">
+        <input type="checkbox" id="multi-hand-toggle" onchange="applySettings()">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- 3. Mode Tuli (Audio On/Off) -->
+  <div class="panel-section">
+    <div class="switch-container">
+      <span style="font-size: 0.9rem; color: #fff;">Audio / Suara</span>
+      <label class="switch">
+        <input type="checkbox" id="audio-toggle" checked onchange="toggleAudio()">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div style="margin-top:8px; font-size: 0.8rem; color: var(--text-dim);">
+      <i class="fas fa-info-circle"></i> Matikan untuk Mode Tuli.
+    </div>
+  </div>
+
+  <!-- 4. Kalibrasi Sensitivitas -->
+  <div class="panel-section">
+    <div class="panel-header">KALIBRASI DETEKSI</div>
+    <div class="range-wrap">
+      <div class="range-label">
+        <span>Sensitivitas</span>
+        <span id="conf-value">80%</span>
+      </div>
+      <input type="range" min="50" max="95" value="80" id="sensitivity-slider" oninput="updateConfLabel(this.value)">
+    </div>
+    <button class="nav-btn" style="width:100%; margin-top:15px; text-align:center;" onclick="applySettings()">
+      <i class="fas fa-sync-alt"></i> Simpan & Restart Cam
+    </button>
+  </div>
+
+  <!-- 5. History / Log -->
+  <div class="panel-section">
+    <div class="panel-header">
+      <span>RIWAYAT GERAKAN</span>
+      <i class="fas fa-history" style="font-size:0.8rem"></i>
+    </div>
+    <ul class="history-list" id="history-list">
+      <li style="padding:10px; color:var(--text-dim); text-align:center; font-size:0.8rem;">Belum ada riwayat.</li>
+    </ul>
+    <button class="nav-btn" style="width:100%; margin-top:10px; border-color:#ff4444; color:#ff4444; font-size:0.7rem;" onclick="clearHistory()">
+      <i class="fas fa-trash"></i> Hapus Log
+    </button>
+  </div>
+</div>
+
 <script>
-/* ================= DATA & CONFIG ================= */
-const HOLD_FRAMES = 10;
+/* ================= DATA & CONFIG (ORIGINAL) ================= */
 const sfxScanStart = new Audio("https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"); 
 sfxScanStart.volume = 0.5;
 
 // Data Konfigurasi: 10 Suara Indo + 10 Suara Inggris
 const GESTURES = [
-  { id: 'HALO', icon: '✋', title: 'Halo', titleEN: 'Hello', desc: '5 Jari Lurus', audio: 'halo.mp3.mp3', audioEN: 'hello.mp3.mp3' },
-  { id: 'BANTUAN', icon: '✊', title: 'Bantuan', titleEN: 'Help', desc: 'Kepalan Tangan', audio: 'bantuan.mp3.mp3', audioEN: 'help_en.mp3.mp3' },
+  { id: 'HALO', icon: '✋', title: 'Halo', titleEN: 'Hello', desc: '5 Jari Lurus', audio: 'halo.mp3', audioEN: 'hello.mp3.mp3' },
+  { id: 'BANTUAN', icon: '✊', title: 'Bantuan', titleEN: 'Help', desc: 'Kepalan Tangan', audio: 'bantuan.mp3', audioEN: 'help_en.mp3.mp3' },
   { id: 'TERIMA', icon: '👍', title: 'Terima Kasih', titleEN: 'Thank You', desc: 'Jempol Atas', audio: 'terima.mp3', audioEN: 'thanks_en.mp3.mp3' },
   { id: 'MAAF', icon: '☝️', title: 'Maaf', titleEN: 'Sorry', desc: 'Telunjuk Saja', audio: 'maaf.mp3.mp3', audioEN: 'sorry_en.mp3.mp3' },
   { id: 'SETUJU', icon: '✌️', title: 'Setuju', titleEN: 'Agree', desc: 'Victory Sign', audio: 'setuju.mp3.mp3', audioEN: 'yes_en.mp3.mp3' },
@@ -382,16 +614,26 @@ const GESTURES = [
 const LINKS = [
   { name: "Chat GPT", url: "https://chatgpt.com/share/694ca24c-f83c-8010-943e-5b512b0bb17f", icon: "fas fa-comments" },
   { name: "ZAI AI", url: "https://chat.z.ai/s/8f6cc509-13d8-4f46-aea5-7b9c81ad84ef", icon: "fas fa-brain" },
+  { name: "ZAI AI UPDATE", url: "https://chat.z.ai/s/74af0ed7-777f-45d2-9cce-ab0dcf78dab4", icon: "fas fa-brain" },
 ];
+
+/* ================= NEW VARIABLES & STATE (FITUR BARU) ================= */
+let isCooldown = false;
+let audioEnabled = true;
+let gestureHistory = [];
+let detectionConfidence = 0.8;
+
+// --- UPGRADE VARIABLES ---
+let HOLD_FRAMES = 10; // Default Standard
+let modelComplexity = 1; // 1 = High (Akurat), 0 = Low (Cepat)
+let maxHands = 1; // 1 atau 2
+let currentUserMode = 'standard'; // anak, standard, lansia
 
 /* ================= UI LOGIC ================= */
 const pages = ['home', 'scan', 'guide', 'links'];
 let cameraInstance = null;
 let isCameraRunning = false;
-let currentLang = 'ID'; // Default Bahasa Indonesia
-
-// Setup Audio Objects (opsional, disini kita load on the fly biar hemat memori)
-// Kita akan menggunakan new Audio(filename) saat trigger saja
+let currentLang = 'ID';
 
 function navigateTo(targetId) {
   pages.forEach(id => {
@@ -477,7 +719,12 @@ function startCamera() {
   if (isCameraRunning) return;
   
   const hands = new Hands({locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`});
-  hands.setOptions({maxNumHands: 1, modelComplexity: 1, minDetectionConfidence: 0.8, minTrackingConfidence: 0.8});
+  hands.setOptions({
+    maxNumHands: maxHands, 
+    modelComplexity: modelComplexity, 
+    minDetectionConfidence: detectionConfidence, 
+    minTrackingConfidence: detectionConfidence
+  });
   hands.onResults(onResults);
 
   cameraInstance = new Camera(video, {
@@ -529,94 +776,114 @@ function onResults(results) {
   ctx.scale(-1, 1);
   ctx.translate(-canvas.width, 0);
 
+  let primaryGestureFound = false;
+
   if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-    const lm = results.multiHandLandmarks[0];
-    const hand = results.multiHandedness[0].label;
+    
+    // UPDATE CONFIDENCE SCORE DISPLAY
+    const bestHandScore = results.multiHandedness[0].score;
+    document.getElementById('conf-display').innerHTML = `<i class="fas fa-bullseye"></i> ${Math.round(bestHandScore * 100)}%`;
 
-    drawConnectors(ctx, lm, HAND_CONNECTIONS, {color: 'rgba(0, 243, 255, 0.5)', lineWidth: 2});
-    drawLandmarks(ctx, lm, {color: '#ff0055', lineWidth: 1, radius: 3});
+    // MULTI-HAND LOOP (Visual Only for > 1 hand to avoid chaos)
+    for (let i = 0; i < results.multiHandLandmarks.length; i++) {
+      const lm = results.multiHandLandmarks[i];
+      const hand = results.multiHandedness[i].label;
 
-    // Angle Based Detection
-    const indexAngle = calculateAngle(lm[5], lm[6], lm[8]);
-    const indexStraight = indexAngle > 160;
+      // Draw Skeletons for ALL hands
+      drawConnectors(ctx, lm, HAND_CONNECTIONS, {color: 'rgba(0, 243, 255, 0.5)', lineWidth: 2});
+      drawLandmarks(ctx, lm, {color: '#ff0055', lineWidth: 1, radius: 3});
 
-    const middleAngle = calculateAngle(lm[9], lm[10], lm[12]);
-    const middleStraight = middleAngle > 160;
+      // DETECTION LOGIC (Only for FIRST hand to prevent spam)
+      if (i === 0) { 
+        // Angle Based Detection
+        const indexAngle = calculateAngle(lm[5], lm[6], lm[8]);
+        const indexStraight = indexAngle > 160;
 
-    const ringAngle = calculateAngle(lm[13], lm[14], lm[16]);
-    const ringStraight = ringAngle > 160;
+        const middleAngle = calculateAngle(lm[9], lm[10], lm[12]);
+        const middleStraight = middleAngle > 160;
 
-    const pinkyAngle = calculateAngle(lm[17], lm[18], lm[20]);
-    const pinkyStraight = pinkyAngle > 160;
+        const ringAngle = calculateAngle(lm[13], lm[14], lm[16]);
+        const ringStraight = ringAngle > 160;
 
-    const distThumbPinky = getDistance(lm[4], lm[17]);
-    const thumbStraight = distThumbPinky > 0.15; 
+        const pinkyAngle = calculateAngle(lm[17], lm[18], lm[20]);
+        const pinkyStraight = pinkyAngle > 160;
 
-    const f = {
-      thumb: thumbStraight,
-      index: indexStraight,
-      middle: middleStraight,
-      ring: ringStraight,
-      pinky: pinkyStraight
-    };
+        const distThumbPinky = getDistance(lm[4], lm[17]);
+        const thumbStraight = distThumbPinky > 0.15; 
 
-    updateFingerHUD(f);
-    const count = Object.values(f).filter(Boolean).length;
-    let gesture = "";
+        const f = {
+          thumb: thumbStraight,
+          index: indexStraight,
+          middle: middleStraight,
+          ring: ringStraight,
+          pinky: pinkyStraight
+        };
 
-    const distThumbIndex = getDistance(lm[4], lm[8]);
-    if (distThumbIndex < 0.05) gesture = "OK";
-    else if (count === 5) gesture = "HALO";
-    else if (count === 0) gesture = "BANTUAN";
-    else if (f.thumb && !f.index && !f.middle && !f.ring && !f.pinky) gesture = "TERIMA";
-    else if (!f.thumb && f.index && !f.middle && !f.ring && !f.pinky) gesture = "MAAF";
-    else if (!f.thumb && f.index && f.middle && !f.ring && !f.pinky) gesture = "SETUJU";
-    else if (!f.thumb && f.index && f.middle && f.ring && f.pinky) gesture = "TOILET";
-    else if (f.index && f.pinky && !f.middle && !f.ring && !f.thumb) gesture = "ROCK";
-    else if (f.thumb && f.pinky && !f.index && !f.middle && !f.ring) gesture = "TELEPON";
-    else if (count === 3) gesture = "MAKAN";
+        updateFingerHUD(f);
+        const count = Object.values(f).filter(Boolean).length;
+        let gesture = "";
 
-    ctx.restore();
+        const distThumbIndex = getDistance(lm[4], lm[8]);
+        if (distThumbIndex < 0.05) gesture = "OK";
+        else if (count === 5) gesture = "HALO";
+        else if (count === 0) gesture = "BANTUAN";
+        else if (f.thumb && !f.index && !f.middle && !f.ring && !f.pinky) gesture = "TERIMA";
+        else if (!f.thumb && f.index && !f.middle && !f.ring && !f.pinky) gesture = "MAAF";
+        else if (!f.thumb && f.index && f.middle && !f.ring && !f.pinky) gesture = "SETUJU";
+        else if (!f.thumb && f.index && f.middle && f.ring && f.pinky) gesture = "TOILET";
+        else if (f.index && f.pinky && !f.middle && !f.ring && !f.thumb) gesture = "ROCK";
+        else if (f.thumb && f.pinky && !f.index && !f.middle && !f.ring) gesture = "TELEPON";
+        else if (count === 3) gesture = "MAKAN";
 
-    document.querySelectorAll('.item-card').forEach(c => c.classList.remove('active'));
-    if(gesture) {
-      const card = document.getElementById(`card-${gesture}`);
-      if(card) card.classList.add('active');
-    }
+        if (gesture) {
+          primaryGestureFound = true;
+          document.querySelectorAll('.item-card').forEach(c => c.classList.remove('active'));
+          const card = document.getElementById(`card-${gesture}`);
+          if(card) card.classList.add('active');
 
-    if (gesture) {
-      if (gesture === lastGesture) {
-        holdCount++;
-        progressFill.style.width = Math.min((holdCount/HOLD_FRAMES)*100, 100) + "%";
-        if(holdCount >= HOLD_FRAMES) {
-          const data = GESTURES.find(g => g.id === gesture);
-          if(data) {
+          if (gesture === lastGesture) {
+            holdCount++;
+            progressFill.style.width = Math.min((holdCount/HOLD_FRAMES)*100, 100) + "%";
             
-            // LOGIKA BAHASA
-            const displayTitle = (currentLang === 'ID') ? data.title : data.titleEN;
-            const audioFile = (currentLang === 'ID') ? data.audio : data.audioEN;
-            
-            showToast(`${data.icon} ${displayTitle}`);
-            playAudioByID(audioFile); // SUARA KITA SENDIRI
-            statusText.innerText = displayTitle;
-            statusText.style.color = "var(--primary)";
-            
-            hintText.innerText = (currentLang === 'ID') ? "Audio Diputar" : "Audio Played";
-            holdCount = 0;
+            if (isCooldown) {
+              hintText.innerText = (currentLang === 'ID') ? "Cooldown tunggu sebentar..." : "Cooldown, please wait...";
+            }
+
+            if(holdCount >= HOLD_FRAMES && !isCooldown) {
+              const data = GESTURES.find(g => g.id === gesture);
+              if(data) {
+                const displayTitle = (currentLang === 'ID') ? data.title : data.titleEN;
+                const audioFile = (currentLang === 'ID') ? data.audio : data.audioEN;
+                const textToRead = (currentLang === 'ID') ? data.title : data.titleEN;
+                
+                showToast(`${data.icon} ${displayTitle}`);
+                playAudioByID(audioFile, textToRead, currentLang); 
+                statusText.innerText = displayTitle;
+                statusText.style.color = "var(--primary)";
+                hintText.innerText = (currentLang === 'ID') ? "Audio Diputar" : "Audio Played";
+                addToHistory(displayTitle, data.icon);
+                activateCooldown();
+                
+                // --- GESTURE PREVIEW ANIMATION ---
+                showPreviewAnimation(data.icon);
+
+                holdCount = 0;
+              }
+            }
+          } else {
+            holdCount = 1;
+            lastGesture = gesture;
+            statusText.innerText = `DETECTED: ${gesture}...`;
+            hintText.innerText = (currentLang === 'ID') ? "Tahan posisi..." : "Hold position...";
           }
+        } else {
+          holdCount = 0;
+          lastGesture = "";
+          progressFill.style.width = "0%";
+          statusText.innerText = "ANALYZING...";
+          hintText.innerText = (currentLang === 'ID') ? "Posisikan tangan dengan benar" : "Position hand correctly";
         }
-      } else {
-        holdCount = 1;
-        lastGesture = gesture;
-        statusText.innerText = `DETECTED: ${gesture}...`;
-        hintText.innerText = (currentLang === 'ID') ? "Tahan posisi..." : "Hold position...";
       }
-    } else {
-      holdCount = 0;
-      lastGesture = "";
-      progressFill.style.width = "0%";
-      statusText.innerText = "ANALYZING...";
-      hintText.innerText = (currentLang === 'ID') ? "Posisikan tangan dengan benar" : "Position hand correctly";
     }
   } else {
     ctx.restore();
@@ -624,6 +891,7 @@ function onResults(results) {
     statusText.innerText = "NO HAND";
     hintText.innerText = (currentLang === 'ID') ? "Letakkan tangan di frame" : "Place hand in frame";
     progressFill.style.width = "0%";
+    document.getElementById('conf-display').innerHTML = `<i class="fas fa-bullseye"></i> 0%`;
   }
 }
 
@@ -645,16 +913,186 @@ function showToast(msg) {
   setTimeout(() => toast.classList.remove('show'), 2500);
 }
 
-function playAudioByID(filename) {
-  // Stop semua suara yang sedang main
+/* ============================================
+   LOGIKA FITUR BARU (ENHANCED FUNCTIONS)
+   ============================================ */
+
+// 1. PLAY AUDIO dengan Fallback TTS & Mute Check
+function playAudioByID(filename, text, lang) {
+  if (!audioEnabled) return;
   document.querySelectorAll('audio').forEach(a => { a.pause(); a.currentTime = 0; });
-  
-  // Mainkan file spesifik
   const audio = new Audio(filename);
-  audio.play().catch(e => console.log("Error audio:", e));
+  audio.play().catch(e => {
+    console.log("Gagal load audio, menggunakan TTS:", e);
+    speakText(text, lang);
+  });
 }
+
+function speakText(text, lang) {
+  if (!audioEnabled) return;
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = (lang === 'ID') ? 'id-ID' : 'en-US';
+  utterance.rate = 1.0; utterance.pitch = 1.0;
+  window.speechSynthesis.speak(utterance);
+}
+
+// 2. COOLDOWN SYSTEM
+function activateCooldown() {
+  isCooldown = true;
+  setTimeout(() => { isCooldown = false; }, 2500);
+}
+
+// 3. HISTORY SYSTEM
+function addToHistory(gestureName, icon) {
+  const now = new Date();
+  const timeString = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0') + ":" + now.getSeconds().toString().padStart(2,'0');
+  gestureHistory.unshift({ time: timeString, name: gestureName, icon: icon });
+  if (gestureHistory.length > 20) gestureHistory.pop();
+  renderHistory();
+}
+
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  list.innerHTML = "";
+  if(gestureHistory.length === 0) {
+    list.innerHTML = '<li style="padding:10px; color:var(--text-dim); text-align:center; font-size:0.8rem;">Belum ada riwayat.</li>';
+    return;
+  }
+  gestureHistory.forEach(item => {
+    list.innerHTML += `
+      <li class="history-item">
+        <span class="h-time">${item.time}</span>
+        <span class="h-gesture">${item.icon} ${item.name}</span>
+      </li>
+    `;
+  });
+}
+
+function clearHistory() {
+  gestureHistory = [];
+  renderHistory();
+}
+
+// 4. TOOLS PANEL LOGIC
+function toggleToolsPanel() {
+  document.getElementById('tools-panel').classList.toggle('open');
+}
+
+function toggleAudio() {
+  audioEnabled = document.getElementById('audio-toggle').checked;
+  if(!audioEnabled) {
+    window.speechSynthesis.cancel();
+    document.querySelectorAll('audio').forEach(a => a.pause());
+    showToast("🔇 Mode Tuli Aktif");
+  } else {
+    showToast("🔊 Audio Aktif");
+  }
+}
+
+// 5. KALIBRASI / SENSITIVITY
+function updateConfLabel(val) {
+  document.getElementById('conf-value').innerText = val + "%";
+}
+
+/* ============================================
+   ULTIMATE UPGRADE LOGIC (NEW FUNCTIONS)
+   ============================================ */
+
+// 1. FULLSCREEN MODE
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(err => {
+      showToast(`Error: ${err.message}`);
+    });
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    }
+  }
+}
+
+// 2. GESTURE PREVIEW ANIMATION
+function showPreviewAnimation(icon) {
+  const el = document.getElementById('preview-overlay');
+  el.innerText = icon;
+  el.classList.add('active');
+  
+  // Reset after 800ms
+  setTimeout(() => {
+    el.classList.remove('active');
+  }, 800);
+}
+
+// 3. MODE ANAK / LANSIA / STANDARD
+function setUserMode(mode) {
+  currentUserMode = mode;
+  
+  // UI Update
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  if(mode === 'anak') document.getElementById('btn-anak').classList.add('active');
+  if(mode === 'standard') document.getElementById('btn-std').classList.add('active');
+  if(mode === 'lansia') document.getElementById('btn-lansia').classList.add('active');
+
+  // Logic Update
+  const desc = document.getElementById('mode-desc');
+  if (mode === 'anak') {
+    HOLD_FRAMES = 5; // Mudah trigger
+    detectionConfidence = 0.5; // Rendah
+    desc.innerText = "Sangat Mudah & Cepat";
+    // Update slider visual
+    document.getElementById('sensitivity-slider').value = 50;
+    updateConfLabel(50);
+  } else if (mode === 'lansia') {
+    HOLD_FRAMES = 20; // Perlu ketelitian (tahan lama)
+    detectionConfidence = 0.9; // Tinggi
+    desc.innerText = "Presisi & Sabar";
+    document.getElementById('sensitivity-slider').value = 90;
+    updateConfLabel(90);
+  } else {
+    HOLD_FRAMES = 10;
+    detectionConfidence = 0.8;
+    desc.innerText = "Mode Standar";
+    document.getElementById('sensitivity-slider').value = 80;
+    updateConfLabel(80);
+  }
+  
+  showToast(`Mode Pengguna: ${mode.toUpperCase()}`);
+}
+
+// 4. APPLY ALL SETTINGS (Performance + MultiHand + Camera Restart)
+function applySettings() {
+  // Performance
+  modelComplexity = document.getElementById('perf-toggle').checked ? 1 : 0;
+  
+  // Multi-Hand
+  maxHands = document.getElementById('multi-hand-toggle').checked ? 2 : 1;
+  
+  // Manual Slider (if user touched it after mode selection)
+  const manualVal = document.getElementById('sensitivity-slider').value;
+  detectionConfidence = manualVal / 100;
+
+  // Update UI Indicator for Multi-Hand
+  const handBadge = document.getElementById('hand-count-display');
+  if(maxHands === 2) {
+    handBadge.style.display = 'flex';
+  } else {
+    handBadge.style.display = 'none';
+  }
+
+  // Restart Camera to apply changes
+  if (isCameraRunning) {
+    stopCamera();
+    setTimeout(() => {
+      startCamera();
+      showToast("⚙️ Pengaturan Diterapkan & Cam Restart");
+      toggleToolsPanel(); 
+    }, 500);
+  } else {
+    showToast("⚙️ Pengaturan Disimpan");
+  }
+}
+
 </script>
 </body>
 </html>
-
-
